@@ -1,0 +1,23 @@
+"""20 test queries with expected title substrings for hit@5 evaluation."""
+TEST_QUERIES = [
+    {"query": "machine learning engineer", "expected_title_contains": "Machine Learning"},
+    {"query": "data scientist", "expected_title_contains": "Data Scientist"},
+    {"query": "senior data scientist", "expected_title_contains": "Senior Data Scientist"},
+    {"query": "data analyst", "expected_title_contains": "Data Analyst"},
+    {"query": "quantitative researcher", "expected_title_contains": "Quantitative"},
+    {"query": "research scientist", "expected_title_contains": "Research"},
+    {"query": "data science manager", "expected_title_contains": "Manager"},
+    {"query": "junior data scientist", "expected_title_contains": "Data Scientist"},
+    {"query": "machine learning intern", "expected_title_contains": "Intern"},
+    {"query": "product data analyst", "expected_title_contains": "Product"},
+    {"query": "deep learning researcher", "expected_title_contains": "Learning"},
+    {"query": "lead data scientist", "expected_title_contains": "Lead"},
+    {"query": "principal data scientist", "expected_title_contains": "Principal"},
+    {"query": "artificial intelligence engineer", "expected_title_contains": "Machine Learning"},
+    {"query": "entry level analyst", "expected_title_contains": "Analyst"},
+    {"query": "nlp engineer", "expected_title_contains": "NLP"},
+    {"query": "computer vision engineer", "expected_title_contains": "Vision"},
+    {"query": "statistician", "expected_title_contains": "Statistic"},
+    {"query": "data science intern", "expected_title_contains": "Intern"},
+    {"query": "python developer", "expected_title_contains": "Python"},
+]
