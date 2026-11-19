@@ -8,7 +8,7 @@ Semantic search over 1,000 job postings using pgvector, FastAPI, and sentence-tr
 2. `pip install torch --index-url https://download.pytorch.org/whl/cpu`
 3. `pip install -r requirements.txt`
 4. `docker exec -i pgvector-jobs psql -U postgres -d jobsdb < schema.sql`
-5. `python ingest.py`
+5. `python ingest.py`   (also creates the HNSW index — idempotent)
 6. `uvicorn main:app --host 0.0.0.0 --port 8000`
 
 ## Endpoints
@@ -26,8 +26,8 @@ curl -s 'http://localhost:8000/search?q=machine+learning+engineer&limit=3'
 Returns top-3 ML roles with similarity 0.69–0.74.
 
 ## Schema
-See `schema.sql` for the jobs, users, saved_jobs tables and the HNSW index.
-
+See `schema.sql` for the jobs, users, saved_jobs tables and the HNSW index
+(`CREATE INDEX ... USING hnsw (embedding vector_cosine_ops)` — idempotent).
 ---
 
 # Project 2: Job Agent
@@ -102,6 +102,25 @@ The 4 queries where keyword failed and semantic won:
 Reproduce:
 
     python -m agent.compare_search
+
+
+## Index Verification
+
+At 1,000 rows the query planner defaults to `Seq Scan` — that's correct (a full
+scan of 1,000 tiny rows is cheaper than graph traversal). The HNSW index is
+present and wired correctly; PostgreSQL just chooses not to use it at this size.
+
+To force index use and confirm it works:
+
+    docker exec -it pgvector-jobs psql -U postgres -d jobsdb -c "
+    SET LOCAL enable_seqscan = off;
+    EXPLAIN ANALYZE SELECT id FROM jobs
+    ORDER BY embedding <=> (SELECT embedding FROM jobs WHERE id=1) LIMIT 5;
+    "
+
+Expected: `Index Scan using jobs_embedding_hnsw on jobs`. At ~10k+ rows the
+planner starts preferring the index on its own; at 100k+ it's an order of
+magnitude faster than sequential scan.
 
 ## Dockerfile
 

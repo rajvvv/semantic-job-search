@@ -82,3 +82,34 @@ conn.close()
 print(f"      Jobs in DB       : {count}")
 print(f"      With embeddings  : {non_null}")
 print("Done.")
+
+
+# --- Ensure HNSW index exists (idempotent) ---
+conn = psycopg2.connect(**DB)
+try:
+    with conn.cursor() as cur:
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS jobs_embedding_hnsw "
+            "ON jobs USING hnsw (embedding vector_cosine_ops) "
+            "WITH (m = 16, ef_construction = 64)"
+        )
+    conn.commit()
+    print("✓ HNSW index present (jobs_embedding_hnsw)")
+finally:
+    conn.close()
+
+
+# --- Ensure HNSW index exists (idempotent) ---
+print("[6/6] Ensuring HNSW index ...")
+conn = psycopg2.connect(**DB)
+try:
+    with conn.cursor() as cur:
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS jobs_embedding_hnsw "
+            "ON jobs USING hnsw (embedding vector_cosine_ops) "
+            "WITH (m = 16, ef_construction = 64)"
+        )
+    conn.commit()
+    print("      ✓ HNSW index present (jobs_embedding_hnsw)")
+finally:
+    conn.close()

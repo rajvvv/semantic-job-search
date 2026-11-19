@@ -36,3 +36,21 @@ ON CONFLICT (email) DO NOTHING;
 
 -- 6. Helpful index for saved_jobs lookups by user
 CREATE INDEX idx_saved_jobs_user ON saved_jobs(user_id);
+
+
+
+-- 7. HNSW index on the embedding column (cosine distance)
+--    Note: with an empty table this is created instantly; for very large
+--    datasets, consider running this after ingest.py for faster bulk load.
+CREATE INDEX IF NOT EXISTS jobs_embedding_hnsw
+    ON jobs
+    USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 64);
+
+-- 7. HNSW index on the embedding column (cosine distance)
+--    Idempotent: safe to re-run on an existing DB.
+--    Note: on a large table, prefer running this after bulk-loading data.
+CREATE INDEX IF NOT EXISTS jobs_embedding_hnsw
+    ON jobs
+    USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 64);
